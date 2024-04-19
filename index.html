@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +8,35 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-        background-color: #f5f5f5; /* Background color */
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+            background-color: #f5f5f5; /* Background color */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url(tictactoe.jpg);
+            background-size: cover;
+            background-position: center;
         }
 
         .container {
             text-align: center;
+
             background-color: #fff;
+
             padding: 20px;
+
             border-radius: 10px;
+
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
-            color: #333;
+        .content {
+            background-color: rgba(255, 255, 255, 0.8); /* Example semi-transparent background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .board {
@@ -61,6 +72,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s ease;
+            margin: 5px;
         }
 
         button:hover {
@@ -72,14 +84,33 @@
             font-size: 1.2em;
             color: #333;
         }
+
+        .mode-selector {
+            margin-top: 20px;
+        }
+
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>Tic Tac Toe</h1>
-        <div class="board" id="board"></div>
-        <button onclick="startGame()">Start New Game</button>
-        <div class="message"></div>
+        <div class="content">
+            <h1>Tic Tac Toe</h1>
+            <div class="board" id="board"></div>
+            <button onclick="startGame()">Start New Game</button>
+            <button onclick="undoMove()" id="undoButton" disabled>Undo</button>
+            <div class="mode-selector">
+                <label for="player">Two Players</label>
+                <input type="radio" name="mode" id="player" value="player" checked>
+                <label for="ai">AI</label>
+                <input type="radio" name="mode" id="ai" value="ai">
+            </div>
+            <div class="message"></div>
+        </div>
     </div>
 
     <script>
@@ -87,6 +118,7 @@
         let currentPlayer = 'X';
         let gameInProgress = false;
         let singlePlayerMode = false;
+        let moveHistory = [];
 
         const winningCombos = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -100,7 +132,8 @@
             board = ['', '', '', '', '', '', '', '', ''];
             currentPlayer = 'X';
             gameInProgress = true;
-            singlePlayerMode = confirm("Play against AI?");
+            document.getElementById('undoButton').disabled = true;
+            moveHistory = [];
 
             const boardDiv = document.getElementById('board');
             boardDiv.innerHTML = '';
@@ -113,6 +146,8 @@
                 boardDiv.appendChild(cell);
             }
 
+            singlePlayerMode = document.querySelector('input[name="mode"]:checked').value === 'ai';
+
             if (singlePlayerMode && currentPlayer === 'O') {
                 makeAiMove();
             }
@@ -120,6 +155,9 @@
 
         function makeMove(index) {
             if (!gameInProgress || board[index] !== '') return;
+
+            moveHistory.push([...board]);
+            document.getElementById('undoButton').disabled = false;
 
             board[index] = currentPlayer;
             renderBoard();
@@ -141,6 +179,15 @@
             if (singlePlayerMode && currentPlayer === 'O') {
                 makeAiMove();
             }
+        }
+
+        function undoMove() {
+            if (!gameInProgress || moveHistory.length === 0) return;
+
+            board = moveHistory.pop();
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            renderBoard();
+            document.getElementById('undoButton').disabled = moveHistory.length === 0;
         }
 
         function makeAiMove() {
@@ -222,4 +269,5 @@
         startGame();
     </script>
 </body>
+
 </html>
